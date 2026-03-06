@@ -1,7 +1,263 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-body {
-  background-color: #f8f9fa;
+/* ═══════════════════════════════════════
+   CSS CUSTOM PROPERTIES — Design Tokens
+═══════════════════════════════════════ */
+:root {
+  --color-bg-primary: #020617;
+  --color-bg-secondary: #0f172a;
+  --color-bg-card: rgba(15, 23, 42, 0.7);
+  --color-accent-from: #6366f1;
+  --color-accent-to: #8b5cf6;
+  --color-accent-glow: rgba(99, 102, 241, 0.35);
+  --color-border-glass: rgba(99, 102, 241, 0.18);
+  --color-text-primary: #f1f5f9;
+  --color-text-muted: #94a3b8;
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.45);
+  --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.25);
+  --radius-card: 16px;
+  --transition-smooth: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* ═══════════════════════════════════════
+   BASE RESET & TYPOGRAPHY
+═══════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  min-height: 100vh;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 20% -20%, rgba(99, 102, 241, 0.15) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(139, 92, 246, 0.12) 0%, transparent 60%);
+}
+
+/* ═══════════════════════════════════════
+   GLASSMORPHISM UTILITY
+═══════════════════════════════════════ */
+.glass {
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid var(--color-border-glass);
+}
+
+.glass-light {
+  background: rgba(30, 41, 59, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(148, 163, 184, 0.08);
+}
+
+/* ═══════════════════════════════════════
+   GRADIENT UTILITIES
+═══════════════════════════════════════ */
+.gradient-text {
+  background: linear-gradient(135deg, #6366f1 0%, #a78bfa 50%, #818cf8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-bg {
+  background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+}
+
+.gradient-border {
+  position: relative;
+}
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6, #6366f1);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════
+   BUTTON STYLES
+═══════════════════════════════════════ */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 28px;
+  background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+  color: #fff;
+  font-weight: 600;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+  text-decoration: none;
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(99, 102, 241, 0.55);
+  background: linear-gradient(135deg, #818cf8 0%, #8b5cf6 100%);
+}
+.btn-primary:active { transform: translateY(0); }
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 24px;
+  background: transparent;
+  color: #a78bfa;
+  font-weight: 600;
+  border-radius: 12px;
+  border: 1px solid rgba(99, 102, 241, 0.45);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+.btn-secondary:hover {
+  background: rgba(99, 102, 241, 0.12);
+  border-color: #6366f1;
+  color: #a78bfa;
+}
+
+/* ═══════════════════════════════════════
+   CARD HOVER EFFECTS
+═══════════════════════════════════════ */
+.card-hover {
+  transition: var(--transition-smooth);
+}
+.card-hover:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(99, 102, 241, 0.2);
+}
+
+/* ═══════════════════════════════════════
+   LOADING SKELETON
+═══════════════════════════════════════ */
+@keyframes shimmer {
+  0%   { background-position: -700px 0; }
+  100% { background-position: 700px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+  background-size: 700px 100%;
+  animation: shimmer 1.6s infinite linear;
+  border-radius: 8px;
+}
+
+/* ═══════════════════════════════════════
+   HERO ANIMATIONS
+═══════════════════════════════════════ */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33%       { transform: translateY(-14px) rotate(1deg); }
+  66%       { transform: translateY(-7px) rotate(-1deg); }
+}
+.float-anim { animation: float 6s ease-in-out infinite; }
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.4); }
+  50%       { box-shadow: 0 0 50px rgba(99, 102, 241, 0.8); }
+}
+.pulse-glow { animation: pulse-glow 2.5s ease-in-out infinite; }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-in-up  { animation: fadeInUp 0.6s ease-out forwards; }
+.fade-in-up-delay-1 { animation: fadeInUp 0.6s 0.15s ease-out both; }
+.fade-in-up-delay-2 { animation: fadeInUp 0.6s 0.3s ease-out both; }
+.fade-in-up-delay-3 { animation: fadeInUp 0.6s 0.45s ease-out both; }
+
+@keyframes badgePulse {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.2); }
+}
+.badge-pulse { animation: badgePulse 1.5s ease-in-out infinite; }
+
+/* ═══════════════════════════════════════
+   FORM INPUT STYLES
+═══════════════════════════════════════ */
+.input-glass {
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  color: #f1f5f9;
+  border-radius: 12px;
+  padding: 12px 16px;
+  width: 100%;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  transition: border-color 0.25s, box-shadow 0.25s;
+  outline: none;
+}
+.input-glass::placeholder { color: #64748b; }
+.input-glass:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+/* ═══════════════════════════════════════
+   TOAST NOTIFICATION
+═══════════════════════════════════════ */
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes toastOut {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to   { opacity: 0; transform: translateY(-20px) scale(0.95); }
+}
+.toast-enter { animation: toastIn 0.35s ease-out forwards; }
+.toast-exit  { animation: toastOut 0.35s ease-in forwards; }
+
+/* ═══════════════════════════════════════
+   SCROLLBAR CUSTOMIZATION
+═══════════════════════════════════════ */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #6366f1, #7c3aed);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover { background: #818cf8; }
+
+/* ═══════════════════════════════════════
+   STAR RATING
+═══════════════════════════════════════ */
+.star-filled { color: #fbbf24; }
+.star-empty  { color: #334155; }
+
+/* ═══════════════════════════════════════
+   IMAGE ZOOM ON HOVER
+═══════════════════════════════════════ */
+.img-zoom-container { overflow: hidden; }
+.img-zoom-container img {
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.img-zoom-container:hover img { transform: scale(1.08); }
+
+/* ═══════════════════════════════════════
+   CATEGORY BADGE COLORS
+═══════════════════════════════════════ */
+.badge-electronics { background: rgba(59, 130, 246, 0.2); color: #93c5fd; }
+.badge-fashion     { background: rgba(236, 72, 153, 0.2); color: #f9a8d4; }
+.badge-home        { background: rgba(34, 197, 94, 0.2);  color: #86efac; }
+.badge-sports      { background: rgba(245, 158, 11, 0.2); color: #fcd34d; }
+.badge-beauty      { background: rgba(168, 85, 247, 0.2); color: #d8b4fe; }

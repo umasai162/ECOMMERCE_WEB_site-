@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import api from '../config/api';
 import { useAuth } from '../context/AuthContext';
-import { Package } from 'lucide-react';
+import { Package, User, Mail, ShieldCheck, ShoppingBag } from 'lucide-react';
 
 export default function Profile() {
     const { user } = useAuth();
@@ -17,47 +17,129 @@ export default function Profile() {
         }
     }, [user]);
 
-    if (!user) return <div className="p-8">Please log in.</div>;
+    if (!user) return null;
+
+    const statusStyle = (status) => {
+        const s = status?.toLowerCase();
+        if (s === 'delivered') return { bg: 'rgba(34,197,94,0.15)', color: '#86efac', border: 'rgba(34,197,94,0.3)' };
+        if (s === 'cancelled') return { bg: 'rgba(239,68,68,0.15)', color: '#fca5a5', border: 'rgba(239,68,68,0.3)' };
+        return { bg: 'rgba(245,158,11,0.15)', color: '#fcd34d', border: 'rgba(245,158,11,0.3)' };
+    };
 
     return (
-        <div className="max-w-4xl mx-auto px-4 py-8">
-            <div className="bg-white shadow rounded-lg p-6 mb-8">
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">Hello, {user.full_name}</h1>
-                <p className="text-gray-600">{user.email}</p>
-                <span className="inline-block bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded-full mt-2 capitalize">{user.role}</span>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
+
+            {/* Profile Card */}
+            <div
+                className="rounded-2xl p-6 mb-8 flex items-center gap-5"
+                style={{
+                    background: 'rgba(15,23,42,0.8)',
+                    border: '1px solid rgba(99,102,241,0.2)',
+                    backdropFilter: 'blur(16px)',
+                }}
+            >
+                {/* Avatar */}
+                <div
+                    className="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-black text-white flex-shrink-0"
+                    style={{ background: 'linear-gradient(135deg, #6366f1, #7c3aed)' }}
+                >
+                    {(user.full_name || 'U')[0].toUpperCase()}
+                </div>
+
+                <div className="flex-1">
+                    <h1 className="text-2xl font-black mb-1" style={{ color: '#f1f5f9' }}>
+                        Hello, {user.full_name}
+                    </h1>
+                    <div className="flex flex-wrap gap-3 text-sm" style={{ color: '#64748b' }}>
+                        <span className="flex items-center gap-1.5">
+                            <Mail className="w-3.5 h-3.5" /> {user.email}
+                        </span>
+                        <span
+                            className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize"
+                            style={{
+                                background: user.role === 'admin' ? 'rgba(245,158,11,0.15)' : 'rgba(99,102,241,0.15)',
+                                color: user.role === 'admin' ? '#fcd34d' : '#a78bfa',
+                                border: `1px solid ${user.role === 'admin' ? 'rgba(245,158,11,0.3)' : 'rgba(99,102,241,0.3)'}`,
+                            }}
+                        >
+                            <ShieldCheck className="w-3 h-3" /> {user.role}
+                        </span>
+                    </div>
+                </div>
             </div>
 
-            <h2 className="text-xl font-bold mb-4 flex items-center">
-                <Package className="mr-2" /> Order History
-            </h2>
+            {/* Order History */}
+            <div className="flex items-center gap-2 mb-5">
+                <Package className="w-5 h-5" style={{ color: '#6366f1' }} />
+                <h2 className="text-xl font-bold" style={{ color: '#f1f5f9' }}>Order History</h2>
+                {!loading && (
+                    <span className="text-xs px-2.5 py-1 rounded-full font-semibold ml-1"
+                        style={{ background: 'rgba(99,102,241,0.15)', color: '#a78bfa' }}>
+                        {orders.length} order{orders.length !== 1 ? 's' : ''}
+                    </span>
+                )}
+            </div>
 
             {loading ? (
-                <div>Loading orders...</div>
+                <div className="space-y-4">
+                    {[1, 2].map(i => (
+                        <div key={i} className="skeleton rounded-2xl" style={{ height: '100px' }} />
+                    ))}
+                </div>
             ) : orders.length === 0 ? (
-                <div className="text-gray-500 bg-white p-6 rounded-lg shadow">No orders found.</div>
+                <div className="flex flex-col items-center justify-center py-16 rounded-2xl"
+                    style={{ background: 'rgba(15,23,42,0.6)', border: '1px solid rgba(99,102,241,0.12)' }}>
+                    <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4 float-anim"
+                        style={{ background: 'rgba(99,102,241,0.1)' }}>
+                        <ShoppingBag className="w-7 h-7" style={{ color: '#6366f1' }} />
+                    </div>
+                    <p className="text-lg font-semibold mb-1" style={{ color: '#e2e8f0' }}>No orders yet</p>
+                    <p className="text-sm" style={{ color: '#64748b' }}>Your order history will appear here.</p>
+                </div>
             ) : (
                 <div className="space-y-4">
-                    {orders.map(order => (
-                        <div key={order.id} className="bg-white p-6 rounded-lg shadow transition hover:shadow-md">
-                            <div className="flex justify-between items-center mb-4">
-                                <div>
-                                    <span className="font-bold text-lg">Order #{order.id}</span>
-                                    <p className="text-gray-500 text-sm">{new Date(order.created_at).toLocaleDateString()}</p>
+                    {orders.map(order => {
+                        const s = statusStyle(order.status);
+                        return (
+                            <div
+                                key={order.id}
+                                className="rounded-2xl p-5 transition-all hover:scale-[1.01]"
+                                style={{
+                                    background: 'rgba(15,23,42,0.75)',
+                                    border: '1px solid rgba(99,102,241,0.15)',
+                                    backdropFilter: 'blur(12px)',
+                                }}
+                            >
+                                <div className="flex justify-between items-start mb-3">
+                                    <div>
+                                        <span className="font-bold text-base" style={{ color: '#e2e8f0' }}>
+                                            Order #{order.id}
+                                        </span>
+                                        <p className="text-xs mt-0.5" style={{ color: '#64748b' }}>
+                                            {new Date(order.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                        </p>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="text-lg font-black gradient-text mb-1">
+                                            ${order.total_amount.toFixed(2)}
+                                        </div>
+                                        <span
+                                            className="text-xs font-semibold px-2.5 py-1 rounded-full"
+                                            style={{ background: s.bg, color: s.color, border: `1px solid ${s.border}` }}
+                                        >
+                                            {order.status}
+                                        </span>
+                                    </div>
                                 </div>
-                                <div className="text-right">
-                                    <span className="block font-bold text-indigo-600">${order.total_amount.toFixed(2)}</span>
-                                    <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${order.status === 'Delivered' ? 'bg-green-100 text-green-800' :
-                                            order.status === 'Cancelled' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'
-                                        }`}>
-                                        {order.status}
-                                    </span>
+                                <div style={{ borderTop: '1px solid rgba(99,102,241,0.1)', paddingTop: '12px' }}>
+                                    <p className="text-xs" style={{ color: '#64748b' }}>
+                                        <span style={{ color: '#94a3b8', fontWeight: 600 }}>Shipping to: </span>
+                                        {order.shipping_address}
+                                    </p>
                                 </div>
                             </div>
-                            <div className="border-t pt-4">
-                                <p className="text-sm text-gray-600"><span className="font-medium">Shipping to:</span> {order.shipping_address}</p>
-                            </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             )}
         </div>

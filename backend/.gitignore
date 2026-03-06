@@ -1,1 +1,42 @@
+# ─── Python Cache ───────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+
+# ─── Virtual Environment ────────────────────────────
+venv/
+env/
+.venv/
+
+# ─── Environment & Secrets ──────────────────────────
 .env
+.env.*
+!.env.example
+
+# ─── Database ───────────────────────────────────────
+*.db
+*.sqlite
+*.sqlite3
+
+# ─── Testing ────────────────────────────────────────
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+/tests/__pycache__/
+
+# ─── Distribution / Packaging ───────────────────────
+*.egg-info/
+dist/
+build/
+*.egg
+
+# ─── Logs ───────────────────────────────────────────
+*.log
+logs/
+
+# ─── OS ─────────────────────────────────────────────
+.DS_Store
+Thumbs.db
