@@ -88,3 +88,61 @@ Since Render doesn't have a direct shell for running scripts easily during build
 1.  Open your **Frontend URL**.
 2.  Log in with `admin@shop.com` / `admin123`.
 3.  Verify that data loads correctly from your Neon database!
+
+---
+
+## Troubleshooting: Exited with status 127 ("command not found")
+
+If Render shows an event like "Exited with status 127" and logs contain lines such as:
+
+```
+Running 'run'
+bash: line 1: run: command not found
+```
+
+Follow these steps to fix the common causes:
+
+1. Check the Service Type
+- If this is your frontend, make sure you created a **Static Site** on Render (not a "Web Service"). Static sites should not have a start command.
+
+2. Verify the Start Command for Web Services
+- For the backend web service, set the **Start Command** to exactly:
+
+```
+uvicorn main:app --host 0.0.0.0 --port $PORT
+```
+
+- For Python web services, Render will run the configured start command; a stray value like `run` (or an empty/mistyped command) will cause `command not found` and exit with 127.
+
+3. Check Build and Run Commands
+- Backend (Web Service):
+    - Build Command: `pip install -r requirements.txt`
+    - Start Command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+
+- Frontend (Static Site):
+    - Build Command: `npm install && npm run build`
+    - Publish Directory: `dist`
+
+4. Use `render.yaml` (optional but recommended)
+- Add or update `render.yaml` in the repo with explicit service definitions so Render's Blueprints use the correct commands. Example snippet for the backend start command:
+
+```yaml
+services:
+    - type: web
+        name: ecommerce-backend
+        env: python
+        rootDir: backend
+        buildCommand: "pip install -r requirements.txt"
+        startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
+```
+
+5. Redeploy and Inspect Logs
+- After making changes in the Render dashboard or pushing an updated `render.yaml`, trigger a manual deploy.
+- Open the Deploy event logs and watch for the start command lines. If you still see `Running 'run'`, change the Start Command in the Render service settings — it indicates the service was configured with the literal `run` command.
+
+6. Still failing?
+- Share the full deploy logs (screenshot or copy) and I will diagnose the exact command Render attempted to run and propose a precise fix.
+
+---
+
+Follow these steps and redeploy; let me know what the logs show after the redeploy and I'll continue troubleshooting.
