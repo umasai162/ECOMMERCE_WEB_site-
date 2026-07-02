@@ -15,11 +15,11 @@ services:
       - key: ALLOWED_ORIGINS
         value: ""
 
-  - type: static
+  - type: static_site
     name: ecommerce-frontend
     rootDir: frontend
     buildCommand: "npm install && npm run build"
-    staticPublishPath: dist
+    publishPath: dist
     envVars:
       - key: VITE_API_URL
         value: "https://ecommerce-backend.onrender.com"
